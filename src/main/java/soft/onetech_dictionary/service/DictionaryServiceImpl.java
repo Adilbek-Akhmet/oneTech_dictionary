@@ -29,7 +29,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Transactional(readOnly = true)
     public List<Dictionary> findAll() {
         for (Dictionary dictionary: dictionaryRepository.findAll()) {
-            kafkaTemplate.send("Kafka", dictionary);
+            kafkaTemplate.send("test", dictionary);
         }
         return dictionaryRepository.findAll();
     }
