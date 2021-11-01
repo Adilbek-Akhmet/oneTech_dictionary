@@ -1,6 +1,7 @@
 package soft.onetech_dictionary.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import soft.onetech_dictionary.exception.DictionaryWithSuchNameDoesNotExists;
@@ -19,12 +20,17 @@ import java.util.List;
 @Transactional
 public class DictionaryServiceImpl implements DictionaryService {
 
+    private final KafkaTemplate<String, Dictionary> kafkaTemplate;
     private final DictionaryRepository dictionaryRepository;
     private final WordTypeRepository wordTypeRepository;
+
 
     @Override
     @Transactional(readOnly = true)
     public List<Dictionary> findAll() {
+        for (Dictionary dictionary: dictionaryRepository.findAll()) {
+            kafkaTemplate.send("Kafka", dictionary);
+        }
         return dictionaryRepository.findAll();
     }
 
@@ -48,8 +54,11 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     @Transactional(readOnly = true)
     public Dictionary findByName(String name) {
-        return dictionaryRepository.findByName(name)
+        Dictionary dictionary = dictionaryRepository.findByName(name)
                 .orElseThrow(() -> new DictionaryWithSuchNameDoesNotExists("Словарь не существует"));
+        kafkaTemplate.send("test", dictionary);
+        return dictionary;
+
     }
 
     @Override
