@@ -1,7 +1,7 @@
 package soft.onetech_dictionary;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -11,6 +11,7 @@ import soft.onetech_dictionary.model.Word;
 import soft.onetech_dictionary.model.WordType;
 import soft.onetech_dictionary.service.DictionaryService;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 
@@ -18,62 +19,65 @@ import java.util.List;
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 @Log4j2
+@RequiredArgsConstructor
 public class OneTechDictionaryApplication {
 
-    private static DictionaryService dictionaryService;
+    private final DictionaryService dictionaryService;
 
-    @Autowired
-    public OneTechDictionaryApplication(DictionaryService dictionaryService) {
-        OneTechDictionaryApplication.dictionaryService = dictionaryService;
-    }
+    @PostConstruct
+    public void init() {
+        WordType rusTerm = new WordType("термин");
+        WordType rusNotTerm = new WordType("неТермин");
 
-    public static void main(String[] args) {
-        SpringApplication.run(OneTechDictionaryApplication.class, args);
-
-        WordType term = new WordType("термин");
-        WordType not_term = new WordType("не термин");
-
-        Dictionary dictionary = new Dictionary(
+        Dictionary rusDictionary = new Dictionary(
                 "russia",
                 List.of(
                         Word.builder()
                                 .name("здравствуйте")
                                 .definition("здравствуйте это")
-                                .type(not_term)
+                                .type(rusNotTerm)
                                 .build(),
                         Word.builder()
                                 .name("привет")
                                 .definition("привет это")
-                                .type(not_term)
+                                .type(rusNotTerm)
                                 .build(),
                         Word.builder()
                                 .name("химия")
                                 .definition("химия это")
-                                .type(term)
+                                .type(rusTerm)
                                 .build()
                 ));
 
-        System.out.println("---Сохранить словарь---");
-        dictionaryService.save(dictionary);
+        WordType engTerm = new WordType("term");
+        WordType engNotTerm = new WordType("notTerm");
 
-        System.out.println("----Найти словарь----");
-        System.out.println(dictionaryService.findByName("russia"));
+        Dictionary engDictionary = new Dictionary(
+                "english",
+                List.of(
+                        Word.builder()
+                                .name("hello")
+                                .definition("hello is")
+                                .type(engNotTerm)
+                                .build(),
+                        Word.builder()
+                                .name("hi")
+                                .definition("hi is")
+                                .type(engNotTerm)
+                                .build(),
+                        Word.builder()
+                                .name("chemistry")
+                                .definition("chemistry is")
+                                .type(engTerm)
+                                .build()
+                ));
 
-        System.out.println("---Все типы слов---");
-        System.out.println(dictionaryService.findAllWordTypes());
+        dictionaryService.save(rusDictionary);
+        dictionaryService.save(engDictionary);
+    }
 
-        System.out.println("----Найти слова в russia dictionary по типу----");
-        System.out.println(dictionaryService.findWordsByWordTypeName("russia", "термин"));
-
-        System.out.println("---Существует ли словарь russia");
-        System.out.println(dictionaryService.existsByName("russia"));
-
-        System.out.println("---Удалить словарь---");
-        dictionaryService.deleteByName("russia");
-
-        System.out.println("---Найти все словари(После удаление должно быт пусто)---");
-        System.out.println(dictionaryService.findAll());
-
+    public static void main(String[] args) {
+        SpringApplication.run(OneTechDictionaryApplication.class, args);
     }
 
 }
