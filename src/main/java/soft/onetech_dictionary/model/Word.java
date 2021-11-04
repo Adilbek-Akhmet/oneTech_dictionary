@@ -2,36 +2,27 @@ package soft.onetech_dictionary.model;
 
 import lombok.*;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import javax.persistence.*;
 
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class Word {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
+    @Column(name = "definition", nullable = false)
     private String definition;
 
-    //one to one
+    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @JoinColumn(name = "type_id", referencedColumnName = "id")
     private WordType type;
 
-    //one to many
-    private Set<String> synonyms;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Word word = (Word) o;
-        return name.equals(word.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
 }

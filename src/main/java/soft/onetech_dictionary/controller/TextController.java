@@ -1,6 +1,6 @@
-package soft.onetech_dictionary.rest;
+package soft.onetech_dictionary.controller;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,11 +9,9 @@ import soft.onetech_dictionary.dto.TextRequest;
 import soft.onetech_dictionary.dto.TextResponse;
 import soft.onetech_dictionary.service.TextService;
 
-import java.util.Set;
-
 @RestController
-@AllArgsConstructor
-@RequestMapping("text")
+@RequiredArgsConstructor
+@RequestMapping("/dictionaries/text")
 public class TextController {
 
     private final TextService textService;
@@ -22,5 +20,4 @@ public class TextController {
     public TextResponse textResult(@RequestBody TextRequest text) {
         return textService.textChecker(text.getText());
     }
-
 }

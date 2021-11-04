@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import soft.onetech_dictionary.dto.TextRequest;
 import soft.onetech_dictionary.dto.TextResponse;
 import soft.onetech_dictionary.model.Word;
 import soft.onetech_dictionary.model.WordType;
@@ -18,23 +19,44 @@ import static org.mockito.Mockito.*;
 class TextServiceImplTest {
     @Mock
     WordRepository wordRepository;
+
     @InjectMocks
     TextServiceImpl textServiceImpl;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void testTextChecker() {
-        Optional<Word> optionalWord = Optional.of(new Word("привет", "Обращённое к кому-н. выражение чувства личной приязни, доброго пожелания, солидарности", WordType.NOT_TERM, Set.of("здравствуйте")));
-        when(wordRepository.findByName(anyString())).thenReturn(optionalWord);
+        TextRequest request = new TextRequest("ff hi hi");
 
-        TextResponse result = textServiceImpl.textChecker(optionalWord.get().getName());
-        Assertions.assertEquals(new TextResponse(1, 1L, new HashSet<>(), 0L, 2L, 0L, new HashMap<Word, Long>() {{
-            put(optionalWord.get(), Long.valueOf(1));
-        }}), result);
+        when(wordRepository.findByName(request.getText())).thenReturn(
+                Optional.of(
+                        Word.builder()
+                                .name("hi")
+                                .definition("hi is")
+                                .type(new WordType("not term"))
+                                .build()
+                )
+        );
+
+        Map<String, Long> numberOfEachWord = new HashMap<>();
+        numberOfEachWord.put("ff", 1L);
+        numberOfEachWord.put("hi", 2L);
+
+        TextResponse expected = TextResponse.builder()
+                .numberOfWords(3)
+                .numberOfEachWord(numberOfEachWord)
+                .foundInDatabase(0)
+                .absentInDatabase(Set.of("ff", "hi"))
+                .moreDetailedInfoWordsInDatabase(new HashMap<>())
+                .build();
+
+        TextResponse actual = textServiceImpl.textChecker("ff HI hi");
+
+        Assertions.assertEquals(expected, actual);
     }
 }
 

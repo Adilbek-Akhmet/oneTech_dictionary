@@ -9,17 +9,14 @@ import soft.onetech_dictionary.model.Word;
 import java.util.Map;
 import java.util.Set;
 
-@Data
 @Builder
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class TextResponse {
-
-    private int textLength;
+    private long numberOfWords;
+    private Map<String, Long> numberOfEachWord;
     private long foundInDatabase;
     private Set<String> absentInDatabase;
-    private long complexWords;
-    private long numberOfSlogs;
-    private long numberOfTerms;
     private Map<Word, Long> moreDetailedInfoWordsInDatabase;
 }

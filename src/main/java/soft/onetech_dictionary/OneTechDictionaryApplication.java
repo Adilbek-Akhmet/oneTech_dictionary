@@ -1,53 +1,83 @@
 package soft.onetech_dictionary;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import soft.onetech_dictionary.dto.TextResponse;
-import soft.onetech_dictionary.service.TextService;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import soft.onetech_dictionary.model.Dictionary;
+import soft.onetech_dictionary.model.Word;
+import soft.onetech_dictionary.model.WordType;
+import soft.onetech_dictionary.service.DictionaryService;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
+import java.util.List;
+
 
 @SpringBootApplication
+@EnableTransactionManagement
+@EnableAspectJAutoProxy
 @Log4j2
+@RequiredArgsConstructor
 public class OneTechDictionaryApplication {
 
-    private static TextService textService;
+    private final DictionaryService dictionaryService;
 
-    @Autowired
-    public OneTechDictionaryApplication(TextService textService) {
-        OneTechDictionaryApplication.textService = textService;
+    @PostConstruct
+    public void init() {
+        WordType rusTerm = new WordType("термин");
+        WordType rusNotTerm = new WordType("неТермин");
+
+        Dictionary rusDictionary = new Dictionary(
+                "russia",
+                List.of(
+                        Word.builder()
+                                .name("здравствуйте")
+                                .definition("здравствуйте это")
+                                .type(rusNotTerm)
+                                .build(),
+                        Word.builder()
+                                .name("привет")
+                                .definition("привет это")
+                                .type(rusNotTerm)
+                                .build(),
+                        Word.builder()
+                                .name("химия")
+                                .definition("химия это")
+                                .type(rusTerm)
+                                .build()
+                ));
+
+        WordType engTerm = new WordType("term");
+        WordType engNotTerm = new WordType("notTerm");
+
+        Dictionary engDictionary = new Dictionary(
+                "english",
+                List.of(
+                        Word.builder()
+                                .name("hello")
+                                .definition("hello is")
+                                .type(engNotTerm)
+                                .build(),
+                        Word.builder()
+                                .name("hi")
+                                .definition("hi is")
+                                .type(engNotTerm)
+                                .build(),
+                        Word.builder()
+                                .name("chemistry")
+                                .definition("chemistry is")
+                                .type(engTerm)
+                                .build()
+                ));
+
+        dictionaryService.save(rusDictionary);
+        dictionaryService.save(engDictionary);
     }
 
     public static void main(String[] args) {
         SpringApplication.run(OneTechDictionaryApplication.class, args);
-
-        String text = "Привет   красивая экономика валюта Экономика как хозяйство система хозяйствования обеспечивающая общество материальными вещественными и нематериальными духовными благами";
-        System.out.println("---Программа проверка текста---");
-        System.out.println("Текст который нужно проверить: " + text);
-
-        TextResponse textResponse = textService.textChecker(text);
-
-        System.out.println("---Результат проверки---");
-        System.out.println("количество слов в тексте: " + textResponse.getTextLength());
-        System.out.println("количество слов найденных в базе: " + textResponse.getFoundInDatabase());
-        System.out.println("слова которые нет в базе: " + textResponse.getAbsentInDatabase());
-        System.out.println("количество комплексных слов: " + textResponse.getComplexWords());
-        System.out.println("количество терминов: " + textResponse.getNumberOfTerms());
-        System.out.println("количество слогов: " + textResponse.getNumberOfSlogs());
-        System.out.println("\n---показать детально слов найденных в базе---");
-        textResponse.getMoreDetailedInfoWordsInDatabase().forEach((key, value) -> {
-            System.out.println("------------");
-            System.out.println(key.getName());
-            System.out.println("Найдено в тексте: " + value);
-            System.out.println("Определение: " + key.getDefinition());
-            System.out.println("Тип слова: " + key.getType());
-            System.out.println("Синонимы: " + key.getSynonyms());
-        });
     }
 
 }
