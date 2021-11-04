@@ -155,7 +155,7 @@ class DictionaryControllerTest {
     @WithMockUser(roles = {"USER"})
     void testDeleteByName() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .delete("/dictionaries/delete");
+                .delete("/dictionaries/delete/{dictionaryName}", "english");
 
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk());
