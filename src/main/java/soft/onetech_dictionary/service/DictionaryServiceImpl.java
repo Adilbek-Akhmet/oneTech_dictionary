@@ -13,6 +13,7 @@ import soft.onetech_dictionary.repository.WordTypeRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,15 +35,10 @@ public class DictionaryServiceImpl implements DictionaryService {
         if (wordTypeRepository.findByName(typeName).isEmpty()) {
             throw new WordTypeNotFoundException("Неправильный тип слова");
         }
+        return findByName(dictionaryName).getWordList().stream()
+                .filter(word -> word.getType().getName().equals(typeName))
+                .collect(Collectors.toList());
 
-        List<Word> wordList = findByName(dictionaryName).getWordList();
-        List<Word> resultList = new ArrayList<>();
-        for (Word word: wordList) {
-            if (word.getType().getName().equals(typeName)) {
-                resultList.add(word);
-            }
-        }
-        return resultList;
     }
 
     @Override
